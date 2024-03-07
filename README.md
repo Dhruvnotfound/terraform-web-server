@@ -8,4 +8,4 @@
 #8 assign a elastic to the network interface✅
 #9 create a ubuntu server and install apache2 ✅
 
-**This code just runs a simple html file in the server for an exaplme 
+**This code just runs a simple html file in the server for an example
