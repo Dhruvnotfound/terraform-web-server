@@ -1,3 +1,4 @@
+#1 create a vpc
 resource "aws_vpc" "dg_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
@@ -8,6 +9,7 @@ resource "aws_vpc" "dg_vpc" {
   }
 }
 
+#2 create a subnet
 resource "aws_subnet" "dg_public_subnet" {
   vpc_id                  = aws_vpc.dg_vpc.id
   cidr_block              = "10.0.1.0/24"
@@ -19,6 +21,7 @@ resource "aws_subnet" "dg_public_subnet" {
   }
 }
 
+#3 create a internet gateway
 resource "aws_internet_gateway" "dg_internet_gateway" {
   vpc_id = aws_vpc.dg_vpc.id
 
@@ -27,6 +30,7 @@ resource "aws_internet_gateway" "dg_internet_gateway" {
   }
 }
 
+#4 associate subnet with route table 
 resource "aws_route_table" "dg_public_rt" {
   vpc_id = aws_vpc.dg_vpc.id
 
@@ -35,6 +39,7 @@ resource "aws_route_table" "dg_public_rt" {
   }
 }
 
+#5 create a route and route table association 
 resource "aws_route" "default_route" {
   route_table_id         = aws_route_table.dg_public_rt.id
   destination_cidr_block = "0.0.0.0/0"
@@ -46,6 +51,7 @@ resource "aws_route_table_association" "dg_public_assoc" {
   route_table_id = aws_route_table.dg_public_rt.id
 }
 
+#6 create security group allowing traffic
 locals {
   ports_in = [
     443,
@@ -86,6 +92,7 @@ resource "aws_security_group" "dg_allow_web" {
   }
 }
 
+#7 create a network interface with an ip in the subnet that was created in #2
 resource "aws_network_interface" "dg_net_interface" {
   subnet_id       = aws_subnet.dg_public_subnet.id
   private_ips     = ["10.0.1.50"]
@@ -93,6 +100,7 @@ resource "aws_network_interface" "dg_net_interface" {
 
 }
 
+#8 assign a elastic to the network interface
 resource "aws_eip" "one" {
   domain                    = "vpc"
   network_interface         = aws_network_interface.dg_net_interface.id
@@ -101,6 +109,7 @@ resource "aws_eip" "one" {
   instance                  = aws_instance.web.id
 }
 
+#9 create a ubuntu server and install apache2 
 data "aws_ami" "ubuntu" {
   most_recent = true
 
